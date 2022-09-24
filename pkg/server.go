@@ -52,7 +52,7 @@ func (s *Server) getAllHandler(c *gin.Context) {
 		log.Panicf("Error: %+v", err)
 	}
 	data := make([]interface{}, len(list))
-	for i, _ := range list {
+	for i := range list {
 		obj, err := s.Backend.Get(filepath.Join(path, list[i]))
 		if err != nil {
 			log.Panicf("Error: %+v", err)
@@ -86,7 +86,7 @@ func (s *Server) PutHandler(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	err = s.Backend.Write(c.Params.ByName("path"), data)
+	err = s.Backend.Write(c.Params.ByName("path"), helper.ToJSON(data))
 	if err != nil {
 		log.Panicf("Error: %+v", err)
 	}
@@ -107,7 +107,7 @@ func (s *Server) DeleteHandler(c *gin.Context) {
 
 func (s *Server) PatchHandler(c *gin.Context) {
 	path := c.Params.ByName("path")
-	data, err := s.Backend.Get(path)
+	object, err := helper.FromJSON(s.Backend.Get(path))
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.Status(http.StatusNotFound)
@@ -117,15 +117,15 @@ func (s *Server) PatchHandler(c *gin.Context) {
 	}
 	patchData, _ := helper.FromJSON(io.ReadAll(c.Request.Body))
 	if patchDataMap, ok := patchData.(map[string]interface{}); ok {
-		if dataMap, ok := data.(map[string]interface{}); ok {
-			data = helper.MergeMap(dataMap, patchDataMap)
+		if dataMap, ok := object.(map[string]interface{}); ok {
+			object = helper.MergeMap(dataMap, patchDataMap)
 		} else {
 			c.Status(http.StatusBadRequest)
 			return
 		}
 	} else if patchDataSlice, ok := patchData.([]interface{}); ok {
-		if dataSlice, ok := data.([]interface{}); ok {
-			data = append(dataSlice, patchDataSlice...)
+		if dataSlice, ok := object.([]interface{}); ok {
+			object = append(dataSlice, patchDataSlice...)
 		} else {
 			c.Status(http.StatusBadRequest)
 			return
@@ -134,7 +134,7 @@ func (s *Server) PatchHandler(c *gin.Context) {
 		c.Status(http.StatusBadRequest)
 		return
 	}
-	err = s.Backend.Write(path, data)
+	err = s.Backend.Write(path, helper.ToJSON(object))
 	if err != nil {
 		log.Panicf("Error: %+v", err)
 	}

@@ -1,14 +1,11 @@
 package backend
 
 import (
-	"encoding/json"
 	"io/fs"
 	goos "os"
 	"path/filepath"
 	"syscall"
 	"time"
-
-	"github.com/skroczek/acme-restful/internal/helper"
 )
 
 type FilesystemBackend struct {
@@ -23,18 +20,17 @@ func (f FilesystemBackend) Exists(path string) (bool, error) {
 	return !stat.IsDir(), nil
 }
 
-func (f FilesystemBackend) Get(path string) (interface{}, error) {
-	return helper.FromJSON(goos.ReadFile(filepath.Join(f.Root, path)))
+func (f FilesystemBackend) Get(path string) ([]byte, error) {
+	return goos.ReadFile(filepath.Join(f.Root, path))
 }
 
-func (f FilesystemBackend) Write(path string, object interface{}) error {
+func (f FilesystemBackend) Write(path string, data []byte) error {
 	fullPath := filepath.Join(f.Root, path)
 	dir := filepath.Dir(fullPath)
 	if err := goos.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
-	bytes, _ := json.Marshal(object)
-	return goos.WriteFile(fullPath, bytes, 0644)
+	return goos.WriteFile(fullPath, data, 0644)
 }
 
 func (f FilesystemBackend) Delete(path string) error {
