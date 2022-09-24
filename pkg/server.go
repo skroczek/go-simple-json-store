@@ -27,7 +27,7 @@ func (s *Server) GetHandler(c *gin.Context) {
 		s.getListHandler(c)
 		return
 	}
-	data, err := s.Backend.Get(path)
+	data, err := helper.FromJSON(s.Backend.Get(path))
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.Status(http.StatusNotFound)
