@@ -1,10 +1,6 @@
 package server
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/skroczek/acme-restful/internal/helper"
-	"github.com/skroczek/acme-restful/pkg/backend"
-	"github.com/skroczek/acme-restful/pkg/router"
 	"io"
 	"log"
 	"net/http"
@@ -12,6 +8,12 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/skroczek/acme-restful/internal/helper"
+	"github.com/skroczek/acme-restful/pkg/backend"
+	"github.com/skroczek/acme-restful/pkg/router"
 )
 
 type Server struct {
@@ -186,6 +188,15 @@ func NewServer(opts ...Options) *Server {
 }
 
 func (s *Server) Run() {
-	r := router.DefaultRouter(s, s.routerOptions...)
+	r := router.DefaultRouter(s.routerOptions...)
+
+	r.GET("/*path", s.GetHandler)
+	r.POST("/*path", s.PostHandler)
+	r.PUT("/*path", s.PutHandler)
+	r.DELETE("/*path", s.DeleteHandler)
+	r.PATCH("/*path", s.PatchHandler)
+	r.HEAD("/*path", s.HeadHandler)
+	r.OPTIONS("/*path", s.OptionsHandler)
+
 	r.Run()
 }
