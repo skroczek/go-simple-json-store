@@ -13,6 +13,10 @@ func NewEncrypted(backend Backend) *Encrypted {
 	return &Encrypted{Backend: backend}
 }
 
+func (e *Encrypted) SetBackend(backend Backend) {
+	e.Backend = backend
+}
+
 func (e *Encrypted) Exists(path string) (bool, error) {
 	return e.Backend.Exists(path)
 }

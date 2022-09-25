@@ -1,9 +1,10 @@
-package pkg
+package server
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/skroczek/acme-restful/internal/helper"
 	"github.com/skroczek/acme-restful/pkg/backend"
+	"github.com/skroczek/acme-restful/pkg/router"
 	"io"
 	"log"
 	"net/http"
@@ -14,7 +15,8 @@ import (
 )
 
 type Server struct {
-	Backend backend.Backend
+	Backend       backend.Backend
+	routerOptions []router.Option
 }
 
 func (s *Server) GetHandler(c *gin.Context) {
@@ -158,8 +160,32 @@ func (s *Server) OptionsHandler(c *gin.Context) {
 	c.AbortWithStatus(http.StatusNotFound)
 }
 
-func NewServer(backend backend.Backend) *Server {
-	return &Server{
-		Backend: backend,
+type Options func(*Server)
+
+func WithBackend(be backend.Backend) Options {
+	return func(s *Server) {
+		if pbe, ok := be.(backend.Proxy); ok {
+			pbe.SetBackend(s.Backend)
+		}
+		s.Backend = be
 	}
+}
+
+func WithRouterOptions(opts ...router.Option) Options {
+	return func(s *Server) {
+		s.routerOptions = opts
+	}
+}
+
+func NewServer(opts ...Options) *Server {
+	s := &Server{}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
+}
+
+func (s *Server) Run() {
+	r := router.DefaultRouter(s, s.routerOptions...)
+	r.Run()
 }

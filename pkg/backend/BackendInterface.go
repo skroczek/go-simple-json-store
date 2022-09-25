@@ -12,3 +12,7 @@ type Backend interface {
 	List(path string) ([]string, error)
 	GetLastModified(path string) (time.Time, error)
 }
+
+type Proxy interface {
+	SetBackend(backend Backend)
+}
