@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/skroczek/acme-restful/pkg"
 	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/skroczek/acme-restful/pkg/backend"
+	"github.com/skroczek/acme-restful/pkg/router"
+	"github.com/skroczek/acme-restful/pkg/server"
 )
 
 func main() {
@@ -19,18 +19,21 @@ func main() {
 	log.Printf("root: %s", root)
 
 	be := backend.NewFilesystemBackend(root)
-	// You can use this to encrypt the data as rest. But you have to set the passphrase in the environment
-	// variable ACME_RESTFUL_PASSPHRASE
-	//be = backend.NewEncrypted(be)
-	server := pkg.NewServer(be)
-
-	router := pkg.DefaultRouter(server)
-
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-	router.Use(cors.New(config))
+	s := server.NewServer(
+		server.WithBackend(be),
+		// You can additional add the encrypted backend to encrypt the data as rest. But you have to set the passphrase
+		// in the environment variable ACME_RESTFUL_PASSPHRASE
+		//pkg.WithBackend(backend.NewEncrypted(be)),
+		server.WithRouterOptions(
+			router.WithDefaultCors(true),
+			// You can add the basic auth middleware to protect the server with a username and password.
+			//router.WithBasicAuth(gin.Accounts{
+			//	"admin": "admin",
+			//  "user1": "pass1",
+			//})
+		))
 
 	// By default, it serves on :8080 unless a
 	// PORT environment variable was defined.
-	router.Run()
+	s.Run()
 }
