@@ -30,7 +30,7 @@ func (s *Server) GetHandler(c *gin.Context) {
 	data, err := helper.FromJSON(s.Backend.Get(path))
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.Status(http.StatusNotFound)
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
 		log.Panicf("Error: %+v", err)
@@ -46,7 +46,7 @@ func (s *Server) getAllHandler(c *gin.Context) {
 	list, err := s.Backend.List(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.Status(http.StatusNotFound)
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
 		log.Panicf("Error: %+v", err)
@@ -67,7 +67,7 @@ func (s *Server) getListHandler(c *gin.Context) {
 	data, err := s.Backend.List(c.Params.ByName("path"))
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.Status(http.StatusNotFound)
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
 		log.Panicf("Error: %+v", err)
@@ -83,7 +83,7 @@ func (s *Server) PutHandler(c *gin.Context) {
 	data, err := helper.FromJSON(io.ReadAll(c.Request.Body))
 	if err != nil {
 		log.Printf("Error: %+v", err)
-		c.Status(http.StatusBadRequest)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	err = s.Backend.Write(c.Params.ByName("path"), helper.ToJSON(data))
@@ -97,7 +97,7 @@ func (s *Server) DeleteHandler(c *gin.Context) {
 	err := s.Backend.Delete(c.Params.ByName("path"))
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.Status(http.StatusNotFound)
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
 		log.Panicf("Error: %+v", err)
@@ -110,7 +110,7 @@ func (s *Server) PatchHandler(c *gin.Context) {
 	object, err := helper.FromJSON(s.Backend.Get(path))
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.Status(http.StatusNotFound)
+			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
 		log.Panicf("Error: %+v", err)
@@ -120,18 +120,18 @@ func (s *Server) PatchHandler(c *gin.Context) {
 		if dataMap, ok := object.(map[string]interface{}); ok {
 			object = helper.MergeMap(dataMap, patchDataMap)
 		} else {
-			c.Status(http.StatusBadRequest)
+			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
 	} else if patchDataSlice, ok := patchData.([]interface{}); ok {
 		if dataSlice, ok := object.([]interface{}); ok {
 			object = append(dataSlice, patchDataSlice...)
 		} else {
-			c.Status(http.StatusBadRequest)
+			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
 	} else {
-		c.Status(http.StatusBadRequest)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 	err = s.Backend.Write(path, helper.ToJSON(object))
@@ -155,7 +155,7 @@ func (s *Server) OptionsHandler(c *gin.Context) {
 		c.Status(http.StatusOK)
 		return
 	}
-	c.Status(http.StatusNotFound)
+	c.AbortWithStatus(http.StatusNotFound)
 }
 
 func NewServer(backend backend.Backend) *Server {
