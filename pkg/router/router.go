@@ -3,6 +3,8 @@ package router
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/skroczek/acme-restful/internal/jwt"
+	"github.com/skroczek/acme-restful/internal/oicd"
 )
 
 type Option func(r *gin.Engine)
@@ -25,10 +27,25 @@ func WithBasicAuth(auth gin.Accounts) Option {
 	}
 }
 
+func WithOICD(o oicd.Oicd) Option {
+	return func(r *gin.Engine) {
+		r.Use(o.Middleware())
+	}
+}
+
+func WithJWTAuth() Option {
+	return func(r *gin.Engine) {
+		r.Use(jwt.Protect)
+	}
+}
+
 func WithDefaultCors(allowCredentials bool) Option {
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	config.AllowCredentials = allowCredentials
+	if allowCredentials {
+		config.AddAllowHeaders("Authorization")
+	}
 	return func(r *gin.Engine) {
 		r.Use(cors.New(config))
 	}

@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/skroczek/acme-restful/pkg/router"
 	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/skroczek/acme-restful/pkg/backend"
-	"github.com/skroczek/acme-restful/pkg/router"
 	"github.com/skroczek/acme-restful/pkg/server"
 )
 
@@ -18,6 +18,12 @@ func main() {
 	}
 	log.Printf("root: %s", root)
 
+	//issuer := "http://localhost:8081/realms/master"
+	//p, err := rs.NewResourceServerClientCredentials(issuer, "acme-client", "OHfGeYpsgqN8FYI2781yY6V969LL9seL")
+	//if err != nil {
+	//	log.Fatalf("error creating provider %s", err.Error())
+	//}
+	//o := oicd.NewOicd(p)
 	be := backend.NewFilesystemBackend(root)
 	s := server.NewServer(
 		server.WithBackend(be),
@@ -31,6 +37,13 @@ func main() {
 			//	"admin": "admin",
 			//  "user1": "pass1",
 			//})
+			//router.WithOICD(o),
+			// You can add the JWT auth middleware to protect the server by validating the given JWT against
+			// public key. The public key must be in PEM format and be provided in the environment variable
+			// ACME_RESTFUL_PUBLIC_KEY
+			// You can get a public key from keycloak with the following (fish) command:
+			// set -gx ACME_RESTFUL_PUBLIC_KEY (curl http://localhost:8081/realms/dev | jq '.public_key' | tr -d '"')
+			//router.WithJWTAuth(),
 		))
 
 	// By default, it serves on :8080 unless a
