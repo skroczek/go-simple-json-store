@@ -19,3 +19,8 @@ Two "magic" URLs are offered:
 __all.json returns all data in a folder combined as a list.  
 __list.json returns all file names as a list of the folder.
 
+
+## Encryption at rest
+
+It is possible to save the data encrypted through the Encrypted Backend. The encrypted backend acts as a proxy before 
+the actual backend. The passphrase in the environment variable ACME_RESTFUL_PASSPHRASE is used for encryption.

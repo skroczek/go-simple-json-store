@@ -17,7 +17,11 @@ func main() {
 		panic(err)
 	}
 	log.Printf("root: %s", root)
+
 	be := backend.NewFilesystemBackend(root)
+	// You can use this to encrypt the data as rest. But you have to set the passphrase in the environment
+	// variable ACME_RESTFUL_PASSPHRASE
+	//be = backend.NewEncrypted(be)
 	server := pkg.NewServer(be)
 
 	router := pkg.DefaultRouter(server)
