@@ -15,7 +15,7 @@ import (
 
 var key *rsa.PublicKey
 
-func init() {
+func initBackend() {
 	rawKey := os.Getenv("ACME_RESTFUL_PUBLIC_KEY")
 	if rawKey == "" {
 		panic("no public key found. please set ACME_RESTFUL_PUBLIC_KEY")
@@ -30,6 +30,11 @@ func init() {
 		panic(err)
 	}
 	key = pKey.(*rsa.PublicKey)
+}
+
+func Middleware() gin.HandlerFunc {
+	initBackend()
+	return Protect
 }
 
 func Protect(c *gin.Context) {
