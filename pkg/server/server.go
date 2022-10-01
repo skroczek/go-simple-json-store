@@ -23,7 +23,7 @@ type Server struct {
 }
 
 func (s *Server) GetHandler(c *gin.Context) {
-	path := c.Params.ByName("path")
+	path := c.Request.URL.Path
 	if strings.HasSuffix(path, "__all.json") {
 		s.getAllHandler(c)
 		return
@@ -46,8 +46,8 @@ func (s *Server) GetHandler(c *gin.Context) {
 }
 
 func (s *Server) getAllHandler(c *gin.Context) {
-	//data, err := cos.ReadAll(root, c.Params.ByName("path"))
-	path := c.Params.ByName("path")[0 : len(c.Params.ByName("path"))-len("__all.json")]
+	urlPath := c.Request.URL.Path
+	path := urlPath[0 : len(urlPath)-len("__all.json")]
 	list, err := s.Backend.List(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -68,8 +68,8 @@ func (s *Server) getAllHandler(c *gin.Context) {
 }
 
 func (s *Server) getListHandler(c *gin.Context) {
-	//data, err := cos.List(root, c.Params.ByName("path"))
-	data, err := s.Backend.List(c.Params.ByName("path"))
+	urlPath := c.Request.URL.Path
+	data, err := s.Backend.List(urlPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -85,13 +85,14 @@ func (s *Server) PostHandler(c *gin.Context) {
 }
 
 func (s *Server) PutHandler(c *gin.Context) {
+	urlPath := c.Request.URL.Path
 	data, err := helper.FromJSON(io.ReadAll(c.Request.Body))
 	if err != nil {
 		log.Printf("Error: %+v", err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	err = s.Backend.Write(c.Params.ByName("path"), helper.ToJSON(data))
+	err = s.Backend.Write(urlPath, helper.ToJSON(data))
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -103,7 +104,8 @@ func (s *Server) PutHandler(c *gin.Context) {
 }
 
 func (s *Server) DeleteHandler(c *gin.Context) {
-	err := s.Backend.Delete(c.Params.ByName("path"))
+	urlPath := c.Request.URL.Path
+	err := s.Backend.Delete(urlPath)
 	if err != nil {
 		if _, ok := err.(*fs.DeleteDirectoryError); ok {
 			c.AbortWithStatus(http.StatusMethodNotAllowed)
@@ -119,8 +121,8 @@ func (s *Server) DeleteHandler(c *gin.Context) {
 }
 
 func (s *Server) PatchHandler(c *gin.Context) {
-	path := c.Params.ByName("path")
-	object, err := helper.FromJSON(s.Backend.Get(path))
+	urlPath := c.Request.URL.Path
+	object, err := helper.FromJSON(s.Backend.Get(urlPath))
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -147,7 +149,7 @@ func (s *Server) PatchHandler(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	err = s.Backend.Write(path, helper.ToJSON(object))
+	err = s.Backend.Write(urlPath, helper.ToJSON(object))
 	if err != nil {
 		log.Panicf("Error: %+v", err)
 	}
@@ -159,7 +161,8 @@ func (s *Server) HeadHandler(c *gin.Context) {
 }
 
 func (s *Server) OptionsHandler(c *gin.Context) {
-	isFile, err := s.Backend.Exists(c.Params.ByName("path"))
+	urlPath := c.Request.URL.Path
+	isFile, err := s.Backend.Exists(urlPath)
 	if err != nil {
 		log.Panicf("Error: %+v", err)
 	}
