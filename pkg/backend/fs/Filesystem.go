@@ -1,6 +1,7 @@
-package backend
+package fs
 
 import (
+	"fmt"
 	"io/fs"
 	goos "os"
 	"path/filepath"
@@ -8,8 +9,43 @@ import (
 	"time"
 )
 
+type DeleteDirectoryError struct {
+	Path string
+}
+
+func NewDeleteDirectoryError(path string) *DeleteDirectoryError {
+	return &DeleteDirectoryError{Path: path}
+}
+
+func (d *DeleteDirectoryError) Error() string {
+	return "cannot delete directory " + d.Path
+}
+
+type FilesystemOption func(*FilesystemBackend)
+
+func WithDeleteEmptyDirs() FilesystemOption {
+	return func(f *FilesystemBackend) {
+		f.options |= deleteEmptyDirs
+	}
+}
+
+func WithCreateDirs() FilesystemOption {
+	return func(f *FilesystemBackend) {
+		f.options |= createDirs
+	}
+}
+
+type filesystemOption uint8
+
+const (
+	// FilesystemBackendConfig is the default configuration for the filesystem backend
+	createDirs filesystemOption = 1 << iota
+	deleteEmptyDirs
+)
+
 type FilesystemBackend struct {
-	Root string
+	Root    string
+	options filesystemOption
 }
 
 func (f FilesystemBackend) Exists(path string) (bool, error) {
@@ -26,17 +62,31 @@ func (f FilesystemBackend) Get(path string) ([]byte, error) {
 
 func (f FilesystemBackend) Write(path string, data []byte) error {
 	fullPath := filepath.Join(f.Root, path)
-	dir := filepath.Dir(fullPath)
-	if err := goos.MkdirAll(dir, 0755); err != nil {
-		return err
+	if f.options&createDirs != 0 {
+		dir := filepath.Dir(fullPath)
+		if err := goos.MkdirAll(dir, 0755); err != nil {
+			return err
+		}
 	}
 	return goos.WriteFile(fullPath, data, 0644)
 }
 
 func (f FilesystemBackend) Delete(path string) error {
+	if path == "" {
+		return fmt.Errorf("cannot delete root")
+	}
 	fullPath := filepath.Join(f.Root, path)
-	err := goos.Remove(fullPath)
+	fileInfo, err := goos.Stat(fullPath)
 	if err != nil {
+		return err
+	}
+	if fileInfo.IsDir() && f.options&deleteEmptyDirs == 0 {
+		return NewDeleteDirectoryError(path)
+	}
+	if err := goos.Remove(fullPath); err != nil {
+		if _, ok := err.(*DeleteDirectoryError); ok {
+			return nil
+		}
 		if err, ok := err.(*goos.PathError); ok {
 			// TODO: we need some windows specific code here
 			if err.Err == syscall.ENOTEMPTY {
@@ -76,6 +126,10 @@ func (f FilesystemBackend) GetLastModified(path string) (time.Time, error) {
 	return info.ModTime(), err
 }
 
-func NewFilesystemBackend(root string) *FilesystemBackend {
-	return &FilesystemBackend{Root: root}
+func NewFilesystemBackend(root string, options ...FilesystemOption) *FilesystemBackend {
+	b := &FilesystemBackend{Root: root}
+	for _, option := range options {
+		option(b)
+	}
+	return b
 }

@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/skroczek/acme-restful/pkg/backend/fs"
 	"github.com/skroczek/acme-restful/pkg/router"
 	"log"
 	"os"
 	"path/filepath"
 
-	"github.com/skroczek/acme-restful/pkg/backend"
 	"github.com/skroczek/acme-restful/pkg/server"
 )
 
@@ -24,7 +24,7 @@ func main() {
 	//	log.Fatalf("error creating provider %s", err.Error())
 	//}
 	//o := oicd.NewOicd(p)
-	be := backend.NewFilesystemBackend(root)
+	be := fs.NewFilesystemBackend(root, fs.WithCreateDirs(), fs.WithDeleteEmptyDirs())
 	s := server.NewServer(
 		server.WithBackend(be),
 		// You can additional add the encrypted backend to encrypt the data as rest. But you have to set the passphrase

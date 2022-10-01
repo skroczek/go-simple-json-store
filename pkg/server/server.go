@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/skroczek/acme-restful/pkg/backend/fs"
 	"io"
 	"log"
 	"net/http"
@@ -92,6 +93,10 @@ func (s *Server) PutHandler(c *gin.Context) {
 	}
 	err = s.Backend.Write(c.Params.ByName("path"), helper.ToJSON(data))
 	if err != nil {
+		if os.IsNotExist(err) {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
 		log.Panicf("Error: %+v", err)
 	}
 	c.Status(http.StatusCreated)
@@ -100,6 +105,10 @@ func (s *Server) PutHandler(c *gin.Context) {
 func (s *Server) DeleteHandler(c *gin.Context) {
 	err := s.Backend.Delete(c.Params.ByName("path"))
 	if err != nil {
+		if _, ok := err.(*fs.DeleteDirectoryError); ok {
+			c.AbortWithStatus(http.StatusMethodNotAllowed)
+			return
+		}
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
