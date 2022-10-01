@@ -54,7 +54,7 @@ func (f FilesystemBackend) Delete(path string) error {
 }
 
 func (f FilesystemBackend) List(path string) ([]string, error) {
-	path = filepath.Dir(filepath.Join(f.Root, path))
+	path = filepath.Join(f.Root, path)
 	var files []string
 	err := filepath.WalkDir(path, func(s string, d fs.DirEntry, e error) error {
 		if e != nil {
