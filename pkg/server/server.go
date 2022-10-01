@@ -57,7 +57,7 @@ func (s *Server) getAllHandler(c *gin.Context) {
 	}
 	data := make([]interface{}, len(list))
 	for i := range list {
-		obj, err := s.Backend.Get(filepath.Join(path, list[i]))
+		obj, err := helper.FromJSON(s.Backend.Get(filepath.Join(path, list[i])))
 		if err != nil {
 			log.Panicf("Error: %+v", err)
 		}
