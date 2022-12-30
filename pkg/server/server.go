@@ -6,8 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -28,10 +26,6 @@ func (s *Server) AddRouterOption(option ...router.Option) {
 
 func (s *Server) GetHandler(c *gin.Context) {
 	path := c.Request.URL.Path
-	if strings.HasSuffix(path, "__all.json") {
-		s.getAllHandler(c)
-		return
-	}
 	data, err := helper.FromJSON(s.Backend.Get(path))
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -42,34 +36,6 @@ func (s *Server) GetHandler(c *gin.Context) {
 	}
 	modTime, _ := s.Backend.GetLastModified(path)
 	c.Header("Last-Modified", modTime.Format(time.RFC1123))
-	c.JSON(http.StatusOK, data)
-}
-
-func (s *Server) getAllHandler(c *gin.Context) {
-	urlPath := c.Request.URL.Path
-	path := urlPath[0 : len(urlPath)-len("__all.json")]
-	list, err := s.Backend.List(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			c.AbortWithStatus(http.StatusNotFound)
-			return
-		}
-		log.Panicf("Error: %+v", err)
-	}
-	data := make([]interface{}, len(list))
-	ch := make(chan interface{}, len(list))
-	for i := range list {
-		go func(k int) {
-			obj, err := helper.FromJSON(s.Backend.Get(filepath.Join(path, list[k])))
-			if err != nil {
-				log.Panicf("Error: %+v", err)
-			}
-			ch <- obj
-		}(i)
-	}
-	for i := range list {
-		data[i] = <-ch
-	}
 	c.JSON(http.StatusOK, data)
 }
 
