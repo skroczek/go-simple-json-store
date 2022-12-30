@@ -2,6 +2,7 @@ package fs
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 )
@@ -21,6 +22,18 @@ func NewMemory() *Memory {
 	}
 }
 
+func PrintTree(tree map[string]interface{}, indent string) {
+	for key, value := range tree {
+		switch value.(type) {
+		case map[string]interface{}:
+			fmt.Println(indent + key)
+			PrintTree(value.(map[string]interface{}), indent+"  ")
+		case Blob:
+			fmt.Println(indent + key)
+		}
+	}
+}
+
 func (m *Memory) getBlob(path string) (*Blob, error) {
 	path = strings.Trim(path, "/")
 	if len(path) < 6 {
@@ -33,6 +46,7 @@ func (m *Memory) getBlob(path string) (*Blob, error) {
 	tree := m.tree
 	var ok bool
 	for i := 0; i < (len(parts) - 1); i++ {
+		log.Printf("tree[%s] = %v", parts[i], tree[parts[i]])
 		if tree, ok = tree[parts[i]].(map[string]interface{}); !ok {
 			return nil, fmt.Errorf("invalid path")
 		}
@@ -59,6 +73,7 @@ func (m *Memory) Exists(path string) (bool, error) {
 }
 
 func (m *Memory) Get(path string) ([]byte, error) {
+	log.Printf("Get(%s)", path)
 	blob, err := m.getBlob(path)
 	if err != nil {
 		return nil, err
@@ -67,6 +82,7 @@ func (m *Memory) Get(path string) ([]byte, error) {
 }
 
 func (m *Memory) Write(path string, data []byte) error {
+	path = strings.Trim(path, "/")
 	if len(path) < 6 {
 		return fmt.Errorf("invalid path")
 	}
@@ -85,6 +101,8 @@ func (m *Memory) Write(path string, data []byte) error {
 		}
 	}
 	tree[parts[len(parts)-1]] = &Blob{Content: data, ModTime: time.Now()}
+	log.Printf("tree[%s] = %v", parts[len(parts)-1], tree[parts[len(parts)-1]])
+	PrintTree(m.tree, "")
 	return nil
 }
 
