@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/skroczek/acme-restful/pkg/backend/fs"
+	"github.com/skroczek/acme-restful/pkg/errors"
 	"io"
 	"log"
 	"net/http"
@@ -32,6 +33,10 @@ func (s *Server) GetHandler(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
+		if errors.IsClientError(err) {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
 		log.Panicf("Error: %+v", err)
 	}
 	modTime, _ := s.Backend.GetLastModified(path)
@@ -57,6 +62,10 @@ func (s *Server) PutHandler(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 			return
 		}
+		if errors.IsClientError(err) {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
 		log.Panicf("Error: %+v", err)
 	}
 	c.Status(http.StatusCreated)
@@ -72,6 +81,10 @@ func (s *Server) DeleteHandler(c *gin.Context) {
 		}
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		if errors.IsClientError(err) {
+			c.AbortWithStatus(http.StatusBadRequest)
 			return
 		}
 		log.Panicf("Error: %+v", err)
@@ -123,6 +136,10 @@ func (s *Server) OptionsHandler(c *gin.Context) {
 	urlPath := c.Request.URL.Path
 	isFile, err := s.Backend.Exists(urlPath)
 	if err != nil {
+		if errors.IsClientError(err) {
+			c.AbortWithStatus(http.StatusBadRequest)
+			return
+		}
 		log.Panicf("Error: %+v", err)
 	}
 	if isFile {
