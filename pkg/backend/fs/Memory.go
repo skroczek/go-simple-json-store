@@ -1,7 +1,8 @@
 package fs
 
 import (
-	"fmt"
+	"github.com/skroczek/acme-restful/pkg/errors"
+	"os"
 	"strings"
 	"time"
 )
@@ -24,32 +25,32 @@ func NewMemory() *Memory {
 func (m *Memory) getBlob(path string) (*Blob, error) {
 	path = strings.Trim(path, "/")
 	if len(path) < 6 {
-		return nil, fmt.Errorf("invalid path")
+		return nil, errors.ErrorInvalidPath
 	}
 	if !strings.HasSuffix(path, ".json") {
-		return nil, fmt.Errorf("path must end with .json")
+		return nil, errors.ErrorMissingExtension
 	}
 	parts := strings.Split(path, "/")
 	tree := m.tree
 	var ok bool
 	for i := 0; i < (len(parts) - 1); i++ {
 		if tree, ok = tree[parts[i]].(map[string]interface{}); !ok {
-			return nil, fmt.Errorf("invalid path")
+			return nil, os.ErrNotExist
 		}
 	}
 	if blob, ok := tree[parts[len(parts)-1]].(*Blob); ok {
 		return blob, nil
 	}
-	return nil, fmt.Errorf("invalid path")
+	return nil, os.ErrNotExist
 }
 
 func (m *Memory) Exists(path string) (bool, error) {
 	path = strings.Trim(path, "/")
 	if len(path) < 6 {
-		return false, fmt.Errorf("invalid path")
+		return false, errors.ErrorInvalidPath
 	}
 	if !strings.HasSuffix(path, ".json") {
-		return false, fmt.Errorf("path must end with .json")
+		return false, errors.ErrorMissingExtension
 	}
 	blob, err := m.getBlob(path)
 	if err != nil {
@@ -69,10 +70,10 @@ func (m *Memory) Get(path string) ([]byte, error) {
 func (m *Memory) Write(path string, data []byte) error {
 	path = strings.Trim(path, "/")
 	if len(path) < 6 {
-		return fmt.Errorf("invalid path")
+		return errors.ErrorInvalidPath
 	}
 	if !strings.HasSuffix(path, ".json") {
-		return fmt.Errorf("path must end with .json")
+		return errors.ErrorMissingExtension
 	}
 	parts := strings.Split(path, "/")
 	tree := m.tree
@@ -90,37 +91,35 @@ func (m *Memory) Write(path string, data []byte) error {
 }
 
 func (m *Memory) Delete(path string) error {
+	path = strings.Trim(path, "/")
 	parts := strings.Split(path, "/")
 	tree := m.tree
 	var ok bool
 	for i := 0; i < (len(parts) - 1); i++ {
 		if tree, ok = tree[parts[i]].(map[string]interface{}); !ok {
-			return fmt.Errorf("invalid path")
+			return os.ErrNotExist
 		}
 	}
 	if _, ok := tree[parts[len(parts)-1]].(*Blob); ok {
 		delete(tree, parts[len(parts)-1])
 		return nil
 	}
-	return fmt.Errorf("invalid path")
+	return os.ErrNotExist
 }
 
 func (m *Memory) List(path string) ([]string, error) {
 	path = strings.Trim(path, "/")
-	if strings.HasSuffix(path, ".json") {
-		return nil, fmt.Errorf("path must not end with .json")
-	}
 	tree := m.tree
 	if path != "" {
 		parts := strings.Split(path, "/")
 		var ok bool
 		for i := 0; i < (len(parts) - 1); i++ {
 			if tree, ok = tree[parts[i]].(map[string]interface{}); !ok {
-				return nil, fmt.Errorf("path does not exist")
+				return nil, os.ErrNotExist
 			}
 		}
 		if tree, ok = tree[parts[len(parts)-1]].(map[string]interface{}); !ok {
-			return nil, fmt.Errorf("path does not exist")
+			return nil, os.ErrNotExist
 		}
 	}
 	var result []string
