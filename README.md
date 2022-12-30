@@ -69,9 +69,9 @@ $ curl http://localhost:8080/users/1.json
 $ curl http://localhost:8080/users/2.json
 {"name":"Jane Doe"}
 $ curl http://localhost:8080/users/__all.json
-{"1":{"id":"users/1","name":"John Doe","age":42},"2":{"id":"users/2","name":"Jane Doe"}}
+[{"name":"John Doe","age":42},{"name":"Jane Doe"}]
 $ curl http://localhost:8080/users/__list.json
-["1","2"]
+["1.json","2.json"]
 ```
 
 ## Backends
