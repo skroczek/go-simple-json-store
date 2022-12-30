@@ -2,7 +2,6 @@ package fs
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"time"
 )
@@ -34,7 +33,6 @@ func (m *Memory) getBlob(path string) (*Blob, error) {
 	tree := m.tree
 	var ok bool
 	for i := 0; i < (len(parts) - 1); i++ {
-		log.Printf("tree[%s] = %v", parts[i], tree[parts[i]])
 		if tree, ok = tree[parts[i]].(map[string]interface{}); !ok {
 			return nil, fmt.Errorf("invalid path")
 		}
@@ -61,7 +59,6 @@ func (m *Memory) Exists(path string) (bool, error) {
 }
 
 func (m *Memory) Get(path string) ([]byte, error) {
-	log.Printf("Get(%s)", path)
 	blob, err := m.getBlob(path)
 	if err != nil {
 		return nil, err
