@@ -105,20 +105,20 @@ func (f FilesystemBackend) Delete(path string) error {
 
 func (f FilesystemBackend) List(path string) ([]string, error) {
 	path = filepath.Join(f.Root, path)
-	var files []string
-	err := filepath.WalkDir(path, func(s string, d fs.DirEntry, e error) error {
-		if e != nil {
-			return e
-		}
-		if filepath.Ext(d.Name()) == ".json" {
-			files = append(files, d.Name())
-		}
-		return nil
-	})
+	var fileNames []string
+	files, err := goos.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
-	return files, nil
+	for _, file := range files {
+		if file.Type() == fs.ModeDir {
+			continue
+		}
+		if filepath.Ext(file.Name()) == ".json" {
+			fileNames = append(fileNames, file.Name())
+		}
+	}
+	return fileNames, nil
 }
 
 func (f FilesystemBackend) GetLastModified(path string) (time.Time, error) {
