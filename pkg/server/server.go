@@ -22,14 +22,14 @@ type Server struct {
 	routerOptions []router.Option
 }
 
+func (s *Server) AddRouterOption(option ...router.Option) {
+	s.routerOptions = append(s.routerOptions, option...)
+}
+
 func (s *Server) GetHandler(c *gin.Context) {
 	path := c.Request.URL.Path
 	if strings.HasSuffix(path, "__all.json") {
 		s.getAllHandler(c)
-		return
-	}
-	if strings.HasSuffix(path, "__list.json") {
-		s.getListHandler(c)
 		return
 	}
 	data, err := helper.FromJSON(s.Backend.Get(path))
@@ -57,25 +57,18 @@ func (s *Server) getAllHandler(c *gin.Context) {
 		log.Panicf("Error: %+v", err)
 	}
 	data := make([]interface{}, len(list))
+	ch := make(chan interface{}, len(list))
 	for i := range list {
-		obj, err := helper.FromJSON(s.Backend.Get(filepath.Join(path, list[i])))
-		if err != nil {
-			log.Panicf("Error: %+v", err)
-		}
-		data[i] = obj
+		go func(k int) {
+			obj, err := helper.FromJSON(s.Backend.Get(filepath.Join(path, list[k])))
+			if err != nil {
+				log.Panicf("Error: %+v", err)
+			}
+			ch <- obj
+		}(i)
 	}
-	c.JSON(http.StatusOK, data)
-}
-
-func (s *Server) getListHandler(c *gin.Context) {
-	urlPath := c.Request.URL.Path
-	data, err := s.Backend.List(urlPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			c.AbortWithStatus(http.StatusNotFound)
-			return
-		}
-		log.Panicf("Error: %+v", err)
+	for i := range list {
+		data[i] = <-ch
 	}
 	c.JSON(http.StatusOK, data)
 }
@@ -187,7 +180,7 @@ func WithBackend(be backend.Backend) Options {
 
 func WithRouterOptions(opts ...router.Option) Options {
 	return func(s *Server) {
-		s.routerOptions = opts
+		s.AddRouterOption(opts...)
 	}
 }
 
@@ -210,5 +203,5 @@ func (s *Server) Run() {
 	r.HEAD("/*path", s.HeadHandler)
 	r.OPTIONS("/*path", s.OptionsHandler)
 
-	r.Run()
+	_ = r.Run()
 }

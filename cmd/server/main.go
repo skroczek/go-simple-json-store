@@ -44,7 +44,9 @@ func main() {
 			// You can get a public key from keycloak with the following (fish) command:
 			// set -gx ACME_RESTFUL_PUBLIC_KEY (curl http://localhost:8081/realms/dev | jq '.public_key' | tr -d '"')
 			//router.WithJWTAuth(),
-		))
+		),
+		server.WithListAll(),
+		server.WithGetAll())
 
 	// By default, it serves on :8080 unless a
 	// PORT environment variable was defined.
