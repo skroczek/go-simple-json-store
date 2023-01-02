@@ -175,9 +175,8 @@ func NewServer(opts ...Options) *Server {
 	return s
 }
 
-func (s *Server) Run() {
+func (s *Server) PrepareEngine() *gin.Engine {
 	r := router.DefaultRouter(s.routerOptions...)
-
 	r.GET("/*path", s.GetHandler)
 	r.POST("/*path", s.PostHandler)
 	r.PUT("/*path", s.PutHandler)
@@ -185,6 +184,13 @@ func (s *Server) Run() {
 	r.PATCH("/*path", s.PatchHandler)
 	r.HEAD("/*path", s.HeadHandler)
 	r.OPTIONS("/*path", s.OptionsHandler)
+	return r
+}
 
-	_ = r.Run()
+func (s *Server) Run(addr ...string) {
+	_ = s.PrepareEngine().Run(addr...)
+}
+
+func (s *Server) RunUnix(path string) {
+	_ = s.PrepareEngine().RunUnix(path)
 }
