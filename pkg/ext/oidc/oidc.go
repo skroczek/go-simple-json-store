@@ -1,4 +1,4 @@
-package oicd
+package oidc
 
 import (
 	"fmt"
@@ -9,19 +9,19 @@ import (
 	"strings"
 )
 
-type Oicd struct {
+type Oidc struct {
 	provider rs.ResourceServer
 }
 
-func NewOicd(provider rs.ResourceServer) Oicd {
-	return Oicd{provider: provider}
+func NewOidc(provider rs.ResourceServer) Oidc {
+	return Oidc{provider: provider}
 }
 
-func (o *Oicd) Middleware() gin.HandlerFunc {
+func (o *Oidc) Middleware() gin.HandlerFunc {
 	return o.Protect
 }
 
-func (o *Oicd) Protect(c *gin.Context) {
+func (o *Oidc) Protect(c *gin.Context) {
 	ok, token := o.checkToken(c)
 	if !ok {
 		return
@@ -37,7 +37,7 @@ func (o *Oicd) Protect(c *gin.Context) {
 	}
 	c.Set("user", resp)
 }
-func (o *Oicd) checkToken(c *gin.Context) (bool, string) {
+func (o *Oidc) checkToken(c *gin.Context) (bool, string) {
 	auth := c.GetHeader("authorization")
 	if auth == "" {
 		_ = c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("auth header missing"))
