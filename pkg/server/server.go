@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/skroczek/acme-restful/pkg/backend/fs"
 	"github.com/skroczek/acme-restful/pkg/errors"
+	"github.com/skroczek/acme-restful/pkg/helper"
 	"io"
 	"log"
 	"net/http"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/skroczek/acme-restful/internal/helper"
 	"github.com/skroczek/acme-restful/pkg/backend"
 	"github.com/skroczek/acme-restful/pkg/router"
 )

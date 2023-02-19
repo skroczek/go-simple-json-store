@@ -1,7 +1,7 @@
 package backend
 
 import (
-	"github.com/skroczek/acme-restful/internal/helper"
+	"github.com/skroczek/acme-restful/pkg/helper"
 	"time"
 )
 
