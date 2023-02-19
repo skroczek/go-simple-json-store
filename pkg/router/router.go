@@ -4,6 +4,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/skroczek/acme-restful/pkg/ext/jwt"
+	"github.com/skroczek/acme-restful/pkg/ext/oidc"
 )
 
 type Option func(r *gin.Engine)
@@ -26,7 +27,7 @@ func WithBasicAuth(auth gin.Accounts) Option {
 	}
 }
 
-func WithOICD(o oidc.Oicd) Option {
+func WithOIDC(o oidc.Oidc) Option {
 	return func(r *gin.Engine) {
 		r.Use(o.Middleware())
 	}

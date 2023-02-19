@@ -23,7 +23,7 @@ func main() {
 	//if err != nil {
 	//	log.Fatalf("error creating provider %s", err.Error())
 	//}
-	//o := oicd.NewOicd(p)
+	//o := oidc.NewOidc(p)
 	be := fs.NewFilesystemBackend(root, fs.WithCreateDirs(), fs.WithDeleteEmptyDirs())
 	s := server.NewServer(
 		server.WithBackend(be),
@@ -37,7 +37,7 @@ func main() {
 			//	"admin": "admin",
 			//  "user1": "pass1",
 			//})
-			//router.WithOICD(o),
+			//router.WithOIDC(o),
 			// You can add the JWT auth middleware to protect the server by validating the given JWT against
 			// public key. The public key must be in PEM format and be provided in the environment variable
 			// ACME_RESTFUL_PUBLIC_KEY
