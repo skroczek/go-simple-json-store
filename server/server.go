@@ -149,23 +149,6 @@ func (s *Server) OptionsHandler(c *gin.Context) {
 	c.AbortWithStatus(http.StatusNotFound)
 }
 
-type Options func(*Server)
-
-func WithBackend(be backend.Backend) Options {
-	return func(s *Server) {
-		if pbe, ok := be.(backend.Proxy); ok {
-			pbe.SetBackend(s.Backend)
-		}
-		s.Backend = be
-	}
-}
-
-func WithRouterOptions(opts ...router.Option) Options {
-	return func(s *Server) {
-		s.AddRouterOption(opts...)
-	}
-}
-
 func NewServer(opts ...Options) *Server {
 	s := &Server{}
 	for _, opt := range opts {
