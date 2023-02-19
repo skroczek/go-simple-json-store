@@ -23,8 +23,16 @@ func NewServer(opts ...Options) *Server {
 	return s
 }
 
-func (s *Server) PrepareEngine() *gin.Engine {
-	r := router.DefaultRouter(s.routerOptions...)
+func (s *Server) prepareEngine() *gin.Engine {
+	r := gin.New()
+
+	// ToDo: make logger an recovery middleware configurable
+	r.Use(gin.Logger(), gin.Recovery())
+
+	for _, option := range s.routerOptions {
+		option(r)
+	}
+
 	r.GET("/*path", s.GetHandler)
 	r.POST("/*path", s.PostHandler)
 	r.PUT("/*path", s.PutHandler)
@@ -36,9 +44,9 @@ func (s *Server) PrepareEngine() *gin.Engine {
 }
 
 func (s *Server) Run(addr ...string) {
-	_ = s.PrepareEngine().Run(addr...)
+	_ = s.prepareEngine().Run(addr...)
 }
 
 func (s *Server) RunUnix(path string) {
-	_ = s.PrepareEngine().RunUnix(path)
+	_ = s.prepareEngine().RunUnix(path)
 }
