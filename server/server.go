@@ -1,9 +1,11 @@
 package server
 
 import (
-	"github.com/skroczek/acme-restful/pkg/backend/fs"
-	"github.com/skroczek/acme-restful/pkg/errors"
-	"github.com/skroczek/acme-restful/pkg/helper"
+	"github.com/skroczek/acme-restful/backend"
+	"github.com/skroczek/acme-restful/backend/fs"
+	"github.com/skroczek/acme-restful/errors"
+	helper2 "github.com/skroczek/acme-restful/helper"
+	"github.com/skroczek/acme-restful/router"
 	"io"
 	"log"
 	"net/http"
@@ -11,9 +13,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/skroczek/acme-restful/pkg/backend"
-	"github.com/skroczek/acme-restful/pkg/router"
 )
 
 type Server struct {
@@ -27,7 +26,7 @@ func (s *Server) AddRouterOption(option ...router.Option) {
 
 func (s *Server) GetHandler(c *gin.Context) {
 	path := c.Request.URL.Path
-	data, err := helper.FromJSON(s.Backend.Get(path))
+	data, err := helper2.FromJSON(s.Backend.Get(path))
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -50,13 +49,13 @@ func (s *Server) PostHandler(c *gin.Context) {
 
 func (s *Server) PutHandler(c *gin.Context) {
 	urlPath := c.Request.URL.Path
-	data, err := helper.FromJSON(io.ReadAll(c.Request.Body))
+	data, err := helper2.FromJSON(io.ReadAll(c.Request.Body))
 	if err != nil {
 		log.Printf("Error: %+v", err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	err = s.Backend.Write(urlPath, helper.ToJSON(data))
+	err = s.Backend.Write(urlPath, helper2.ToJSON(data))
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -94,7 +93,7 @@ func (s *Server) DeleteHandler(c *gin.Context) {
 
 func (s *Server) PatchHandler(c *gin.Context) {
 	urlPath := c.Request.URL.Path
-	object, err := helper.FromJSON(s.Backend.Get(urlPath))
+	object, err := helper2.FromJSON(s.Backend.Get(urlPath))
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -102,10 +101,10 @@ func (s *Server) PatchHandler(c *gin.Context) {
 		}
 		log.Panicf("Error: %+v", err)
 	}
-	patchData, _ := helper.FromJSON(io.ReadAll(c.Request.Body))
+	patchData, _ := helper2.FromJSON(io.ReadAll(c.Request.Body))
 	if patchDataMap, ok := patchData.(map[string]interface{}); ok {
 		if dataMap, ok := object.(map[string]interface{}); ok {
-			object = helper.MergeMap(dataMap, patchDataMap)
+			object = helper2.MergeMap(dataMap, patchDataMap)
 		} else {
 			c.AbortWithStatus(http.StatusBadRequest)
 			return
@@ -121,7 +120,7 @@ func (s *Server) PatchHandler(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	err = s.Backend.Write(urlPath, helper.ToJSON(object))
+	err = s.Backend.Write(urlPath, helper2.ToJSON(object))
 	if err != nil {
 		log.Panicf("Error: %+v", err)
 	}

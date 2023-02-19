@@ -1,7 +1,7 @@
 package fs
 
 import (
-	"github.com/skroczek/acme-restful/pkg/errors"
+	"github.com/skroczek/acme-restful/errors"
 	"os"
 	"strings"
 	"time"

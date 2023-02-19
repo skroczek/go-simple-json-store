@@ -30,10 +30,10 @@ This URL returns all file names as a JSON array.
 package main
 
 import (
-	"github.com/skroczek/acme-restful/pkg/backend"
-	"github.com/skroczek/acme-restful/pkg/backend/fs"
-	"github.com/skroczek/acme-restful/pkg/router"
-	"github.com/skroczek/acme-restful/pkg/server"
+	"github.com/skroczek/acme-restful/backend"
+	"github.com/skroczek/acme-restful/backend/fs"
+	"github.com/skroczek/acme-restful/router"
+	"github.com/skroczek/acme-restful/server"
 )
 
 func main() {
@@ -42,7 +42,7 @@ func main() {
 		server.WithBackend(be),
 		// You can additional add the encrypted backend to encrypt the data as rest. But you have to set the passphrase
 		// in the environment variable ACME_RESTFUL_PASSPHRASE
-		//pkg.WithBackend(backend.NewEncrypted(be)),
+		//server.WithBackend(backend.NewEncrypted(be)),
 		server.WithRouterOptions(
 			router.WithDefaultCors(true),
 		),
@@ -94,10 +94,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/skroczek/acme-restful/pkg/backend"
-	"github.com/skroczek/acme-restful/pkg/backend/fs"
-	"github.com/skroczek/acme-restful/pkg/router"
-	"github.com/skroczek/acme-restful/pkg/server"
+	"github.com/skroczek/acme-restful/backend"
+	"github.com/skroczek/acme-restful/backend/fs"
+	"github.com/skroczek/acme-restful/router"
+	"github.com/skroczek/acme-restful/server"
 )
 
 func main() {
@@ -117,7 +117,7 @@ func main() {
 		server.WithBackend(encryptedBackend),
 		// You can additional add the encrypted backend to encrypt the data as rest. But you have to set the passphrase
 		// in the environment variable ACME_RESTFUL_PASSPHRASE
-		//pkg.WithBackend(backend.NewEncrypted(be)),
+		//server.WithBackend(backend.NewEncrypted(be)),
 		server.WithRouterOptions(
 			router.WithDefaultCors(true),
 		),

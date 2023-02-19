@@ -1,13 +1,12 @@
 package main
 
 import (
-	"github.com/skroczek/acme-restful/pkg/backend/fs"
-	"github.com/skroczek/acme-restful/pkg/router"
+	"github.com/skroczek/acme-restful/backend/fs"
+	"github.com/skroczek/acme-restful/router"
+	"github.com/skroczek/acme-restful/server"
 	"log"
 	"os"
 	"path/filepath"
-
-	"github.com/skroczek/acme-restful/pkg/server"
 )
 
 func main() {

@@ -2,8 +2,8 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/skroczek/acme-restful/pkg/backend"
-	"github.com/skroczek/acme-restful/pkg/helper"
+	"github.com/skroczek/acme-restful/backend"
+	"github.com/skroczek/acme-restful/helper"
 	"log"
 	"net/http"
 	"os"

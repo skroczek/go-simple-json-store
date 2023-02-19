@@ -2,7 +2,7 @@ package fs
 
 import (
 	"fmt"
-	"github.com/skroczek/acme-restful/pkg/backend"
+	"github.com/skroczek/acme-restful/backend"
 	"reflect"
 	"sort"
 	"strings"
