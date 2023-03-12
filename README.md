@@ -22,7 +22,10 @@ This URL returns all data as a JSON object. The keys are the file names without 
 
 ### __list.json
 
-This URL returns all file names as a JSON array.
+This magic URL "__list.json" returns a JSON array list of all file names. To remove file extensions from the
+list of file names, include the **withoutExtension** parameter in the URL. The value of the parameter is not evaluated,
+only its presence is checked. If the parameter is present, the file extensions are removed from the list and only the
+base names of the files are returned. Here are examples of how to include the parameter.
 
 ### Usage
 

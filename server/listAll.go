@@ -21,6 +21,11 @@ func getListHandler(c *gin.Context, be backend.Backend) {
 		}
 		log.Panicf("Error: %+v", err)
 	}
+	if _, ok := c.GetQuery("withoutExtension"); ok {
+		for i, v := range data {
+			data[i] = strings.TrimSuffix(v, ".json")
+		}
+	}
 	c.AbortWithStatusJSON(http.StatusOK, data)
 }
 
