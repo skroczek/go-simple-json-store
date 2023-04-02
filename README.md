@@ -12,9 +12,11 @@ go run cmd/server/main.go _tmp/
 
 ## Magic URLs
 
-You can configure two optional "magic" URLs:
+You can configure three optional "magic" URLs:
+
 * __all.json
 * __list.json
+* __dir.json
 
 ### __all.json
 
@@ -26,6 +28,11 @@ This magic URL "__list.json" returns a JSON array list of all file names. To rem
 list of file names, include the **withoutExtension** parameter in the URL. The value of the parameter is not evaluated,
 only its presence is checked. If the parameter is present, the file extensions are removed from the list and only the
 base names of the files are returned. Here are examples of how to include the parameter.
+
+### __dir.json
+
+This magic URL "__dir.json" returns a JSON array list of all directories of the current directory. The directories are
+returned as relative paths to the current directory.
 
 ### Usage
 
@@ -51,6 +58,7 @@ func main() {
 		),
 		server.WithListAll(),
 		server.WithGetAll(),
+		server.WithListDir(),
 	)
 	// By default, it serves on :8080 unless a
 	// PORT environment variable was defined.

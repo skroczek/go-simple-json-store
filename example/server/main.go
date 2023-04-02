@@ -45,7 +45,8 @@ func main() {
 			//router.WithJWTAuth(),
 		),
 		server.WithListAll(),
-		server.WithGetAll())
+		server.WithGetAll(),
+		server.WithListDir())
 
 	// By default, it serves on :8080 unless a
 	// PORT environment variable was defined.
