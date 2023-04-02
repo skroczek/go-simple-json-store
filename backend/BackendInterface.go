@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"io/fs"
 	"time"
 )
 
@@ -11,6 +12,11 @@ type Backend interface {
 	Delete(path string) error
 	List(path string) ([]string, error)
 	GetLastModified(path string) (time.Time, error)
+}
+
+type FileBackend interface {
+	Backend
+	ListTypes(path string, mode fs.FileMode) ([]string, error)
 }
 
 type Proxy interface {

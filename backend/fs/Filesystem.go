@@ -121,6 +121,22 @@ func (f FilesystemBackend) List(path string) ([]string, error) {
 	return fileNames, nil
 }
 
+func (f FilesystemBackend) ListTypes(path string, mode fs.FileMode) ([]string, error) {
+	path = filepath.Join(f.Root, path)
+	list := make([]string, 0)
+	files, err := goos.ReadDir(path)
+	if err != nil {
+		return nil, err
+	}
+	for _, file := range files {
+		if file.Type() != mode {
+			continue
+		}
+		list = append(list, file.Name())
+	}
+	return list, nil
+}
+
 func (f FilesystemBackend) GetLastModified(path string) (time.Time, error) {
 	info, err := goos.Stat(filepath.Join(f.Root, path))
 	return info.ModTime(), err
