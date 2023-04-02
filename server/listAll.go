@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ func getListHandler(c *gin.Context, be backend.Backend) {
 	}
 	if _, ok := c.GetQuery("withoutExtension"); ok {
 		for i, v := range data {
-			data[i] = strings.TrimSuffix(v, ".json")
+			data[i] = strings.TrimSuffix(v, filepath.Ext(v))
 		}
 	}
 	c.AbortWithStatusJSON(http.StatusOK, data)
