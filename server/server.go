@@ -2,8 +2,8 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/skroczek/acme-restful/backend"
-	"github.com/skroczek/acme-restful/router"
+	"github.com/skroczek/go-simple-json-store/backend"
+	"github.com/skroczek/go-simple-json-store/router"
 	"net/http"
 )
 

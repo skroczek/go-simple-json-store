@@ -3,9 +3,9 @@ package server
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/skroczek/acme-restful/backend/fs"
-	"github.com/skroczek/acme-restful/errors"
-	"github.com/skroczek/acme-restful/helper"
+	"github.com/skroczek/go-simple-json-store/backend/fs"
+	"github.com/skroczek/go-simple-json-store/errors"
+	"github.com/skroczek/go-simple-json-store/helper"
 	"io"
 	"net/http"
 	"os"

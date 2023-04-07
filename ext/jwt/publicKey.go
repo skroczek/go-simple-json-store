@@ -16,9 +16,9 @@ import (
 var key *rsa.PublicKey
 
 func initBackend() {
-	rawKey := os.Getenv("ACME_RESTFUL_PUBLIC_KEY")
+	rawKey := os.Getenv("GO_SIMPLE_JSON_STORE_PUBLIC_KEY")
 	if rawKey == "" {
-		panic("no public key found. please set ACME_RESTFUL_PUBLIC_KEY")
+		panic("no public key found. please set GO_SIMPLE_JSON_STORE_PUBLIC_KEY")
 	}
 
 	pemBlock, _ := pem.Decode([]byte(strings.Join([]string{"-----BEGIN RSA PUBLIC KEY-----", rawKey, "-----END RSA PUBLIC KEY-----"}, "\n")))

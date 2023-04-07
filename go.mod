@@ -1,4 +1,4 @@
-module github.com/skroczek/acme-restful
+module github.com/skroczek/go-simple-json-store
 
 go 1.19
 

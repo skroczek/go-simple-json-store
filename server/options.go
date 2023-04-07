@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/skroczek/acme-restful/backend"
-	"github.com/skroczek/acme-restful/router"
+	"github.com/skroczek/go-simple-json-store/backend"
+	"github.com/skroczek/go-simple-json-store/router"
 )
 
 type Options func(*Server)

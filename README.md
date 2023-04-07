@@ -1,4 +1,4 @@
-# acme-restful
+# GoSimpleJSONStore
 
 This project can be used to quickly provide a restful-api. It does not support authentication or authorisation, so it should not be used in a production environment.
 Currently, only the file system is supported as a backend. This means that all data are stored as JSON files on the hard disk.
@@ -40,10 +40,10 @@ returned as relative paths to the current directory.
 package main
 
 import (
-	"github.com/skroczek/acme-restful/backend"
-	"github.com/skroczek/acme-restful/backend/fs"
-	"github.com/skroczek/acme-restful/router"
-	"github.com/skroczek/acme-restful/server"
+	"github.com/skroczek/go-simple-json-store/backend"
+	"github.com/skroczek/go-simple-json-store/backend/fs"
+	"github.com/skroczek/go-simple-json-store/router"
+	"github.com/skroczek/go-simple-json-store/server"
 )
 
 func main() {
@@ -51,7 +51,7 @@ func main() {
 	s := server.NewServer(
 		server.WithBackend(be),
 		// You can additional add the encrypted backend to encrypt the data as rest. But you have to set the passphrase
-		// in the environment variable ACME_RESTFUL_PASSPHRASE
+		// in the environment variable GO_SIMPLE_JSON_STORE_PASSPHRASE
 		//server.WithBackend(backend.NewEncrypted(be)),
 		server.WithRouterOptions(
 			router.WithDefaultCors(true),
@@ -93,7 +93,7 @@ Currently, only the file system is supported as a backend. This means that all d
 ## Encryption at rest
 
 It is possible to save the data encrypted through the Encrypted Backend. The encrypted backend acts as a proxy before 
-the actual backend. The passphrase in the environment variable ACME_RESTFUL_PASSPHRASE is used for encryption.
+the actual backend. The passphrase in the environment variable GO_SIMPLE_JSON_STORE_PASSPHRASE is used for encryption.
 
 ### Usage
 
@@ -105,10 +105,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/skroczek/acme-restful/backend"
-	"github.com/skroczek/acme-restful/backend/fs"
-	"github.com/skroczek/acme-restful/router"
-	"github.com/skroczek/acme-restful/server"
+	"github.com/skroczek/go-simple-json-store/backend"
+	"github.com/skroczek/go-simple-json-store/backend/fs"
+	"github.com/skroczek/go-simple-json-store/router"
+	"github.com/skroczek/go-simple-json-store/server"
 )
 
 func main() {
@@ -121,13 +121,13 @@ func main() {
 
 	be := fs.NewFilesystemBackend(root, fs.WithCreateDirs(), fs.WithDeleteEmptyDirs())
 	// the encrypted backend acts as a proxy before the actual backend
-	// the passphrase is read from the environment variable ACME_RESTFUL_PASSPHRASE
+	// the passphrase is read from the environment variable GO_SIMPLE_JSON_STORE_PASSPHRASE
     // if the passphrase is not set, the backend will panic
 	encryptedBackend := backend.NewEncrypted(be)
 	s := server.NewServer(
 		server.WithBackend(encryptedBackend),
 		// You can additional add the encrypted backend to encrypt the data as rest. But you have to set the passphrase
-		// in the environment variable ACME_RESTFUL_PASSPHRASE
+		// in the environment variable GO_SIMPLE_JSON_STORE_PASSPHRASE
 		//server.WithBackend(backend.NewEncrypted(be)),
 		server.WithRouterOptions(
 			router.WithDefaultCors(true),

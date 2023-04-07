@@ -2,7 +2,7 @@ package fs
 
 import (
 	"context"
-	"github.com/skroczek/acme-restful/errors"
+	"github.com/skroczek/go-simple-json-store/errors"
 	"os"
 	"strings"
 	"time"

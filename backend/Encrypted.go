@@ -2,7 +2,7 @@ package backend
 
 import (
 	"context"
-	"github.com/skroczek/acme-restful/helper"
+	"github.com/skroczek/go-simple-json-store/helper"
 	"time"
 )
 

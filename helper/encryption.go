@@ -19,9 +19,9 @@ func createHash(key string) string {
 }
 
 func Encrypt(data []byte) []byte {
-	passphrase, ok := os.LookupEnv("ACME_RESTFUL_PASSPHRASE")
+	passphrase, ok := os.LookupEnv("GO_SIMPLE_JSON_STORE_PASSPHRASE")
 	if !ok {
-		panic("No passphrase set. Please set the ACME_RESTFUL_PASSPHRASE environment variable.")
+		panic("No passphrase set. Please set the GO_SIMPLE_JSON_STORE_PASSPHRASE environment variable.")
 	}
 	block, _ := aes.NewCipher([]byte(createHash(passphrase)))
 	gcm, err := cipher.NewGCM(block)
@@ -39,9 +39,9 @@ func Decrypt(data []byte, err error) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	passphrase, ok := os.LookupEnv("ACME_RESTFUL_PASSPHRASE")
+	passphrase, ok := os.LookupEnv("GO_SIMPLE_JSON_STORE_PASSPHRASE")
 	if !ok {
-		panic("No passphrase set. Please set the ACME_RESTFUL_PASSPHRASE environment variable.")
+		panic("No passphrase set. Please set the GO_SIMPLE_JSON_STORE_PASSPHRASE environment variable.")
 	}
 	key := []byte(createHash(passphrase))
 	block, err := aes.NewCipher(key)

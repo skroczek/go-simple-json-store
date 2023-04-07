@@ -3,7 +3,7 @@ package fs
 import (
 	"context"
 	"fmt"
-	"github.com/skroczek/acme-restful/backend"
+	"github.com/skroczek/go-simple-json-store/backend"
 	"reflect"
 	"sort"
 	"strings"
