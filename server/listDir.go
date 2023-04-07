@@ -17,10 +17,11 @@ func getListDirHandler(c *gin.Context, be backend.FileBackend) {
 	data, err := be.ListTypes(urlPath[0:len(urlPath)-len(listDirSuffix)], fs.ModeDir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.AbortWithStatus(http.StatusNotFound)
+			_ = c.AbortWithError(http.StatusNotFound, err)
 			return
 		}
-		log.Panicf("Error: %+v", err)
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 	c.AbortWithStatusJSON(http.StatusOK, data)
 }
@@ -31,6 +32,10 @@ func WithListDir() Options {
 			s.AddRouterOption(func(r *gin.Engine) {
 				r.Use(func(c *gin.Context) {
 					if c.Request.Method == http.MethodGet && strings.HasSuffix(c.Request.URL.Path, listDirSuffix) {
+						if c.Request.Method != http.MethodGet {
+							_ = c.AbortWithError(http.StatusMethodNotAllowed, errMethodNotAllowed)
+							return
+						}
 						getListDirHandler(c, b)
 						return
 					}
