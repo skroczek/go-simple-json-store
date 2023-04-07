@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"context"
 	"github.com/skroczek/acme-restful/helper"
 	"time"
 )
@@ -17,28 +18,28 @@ func (e *Encrypted) SetBackend(backend Backend) {
 	e.Backend = backend
 }
 
-func (e *Encrypted) Exists(path string) (bool, error) {
-	return e.Backend.Exists(path)
+func (e *Encrypted) Exists(ctx context.Context, path string) (bool, error) {
+	return e.Backend.Exists(ctx, path)
 }
 
-func (e *Encrypted) Get(path string) ([]byte, error) {
+func (e *Encrypted) Get(ctx context.Context, path string) ([]byte, error) {
 	// TODO: decrypt data
-	return helper.Decrypt(e.Backend.Get(path))
+	return helper.Decrypt(e.Backend.Get(ctx, path))
 }
 
-func (e *Encrypted) Write(path string, data []byte) error {
+func (e *Encrypted) Write(ctx context.Context, path string, data []byte) error {
 	// TODO: encrypt data
-	return e.Backend.Write(path, helper.Encrypt(data))
+	return e.Backend.Write(ctx, path, helper.Encrypt(data))
 }
 
-func (e *Encrypted) Delete(path string) error {
-	return e.Backend.Delete(path)
+func (e *Encrypted) Delete(ctx context.Context, path string) error {
+	return e.Backend.Delete(ctx, path)
 }
 
-func (e *Encrypted) List(path string) ([]string, error) {
-	return e.Backend.List(path)
+func (e *Encrypted) List(ctx context.Context, path string) ([]string, error) {
+	return e.Backend.List(ctx, path)
 }
 
-func (e *Encrypted) GetLastModified(path string) (time.Time, error) {
-	return e.Backend.GetLastModified(path)
+func (e *Encrypted) GetLastModified(ctx context.Context, path string) (time.Time, error) {
+	return e.Backend.GetLastModified(ctx, path)
 }

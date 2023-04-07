@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"context"
 	"fmt"
 	"github.com/skroczek/acme-restful/backend"
 	"reflect"
@@ -169,7 +170,7 @@ func TestMemory_Exists(t *testing.T) {
 			m := &Memory{
 				tree: tt.fields.tree,
 			}
-			got, err := m.Exists(tt.args.path)
+			got, err := m.Exists(context.TODO(), tt.args.path)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Exists() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -286,7 +287,7 @@ func TestMemory_Get(t *testing.T) {
 			m := &Memory{
 				tree: tt.fields.tree,
 			}
-			got, err := m.Get(tt.args.path)
+			got, err := m.Get(context.TODO(), tt.args.path)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Get() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -427,7 +428,7 @@ func TestMemory_List(t *testing.T) {
 			m := &Memory{
 				tree: tt.fields.tree,
 			}
-			got, err := m.List(tt.args.path)
+			got, err := m.List(context.TODO(), tt.args.path)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("List() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -556,7 +557,7 @@ func TestMemory_Write(t *testing.T) {
 			m := &Memory{
 				tree: tt.fields.tree,
 			}
-			if err := m.Write(tt.args.path, tt.args.data); (err != nil) != tt.wantErr {
+			if err := m.Write(context.TODO(), tt.args.path, tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("Write() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -632,7 +633,7 @@ func TestMemory_Delete(t *testing.T) {
 			m := &Memory{
 				tree: tt.fields.tree,
 			}
-			if err := m.Delete(tt.args.path); (err != nil) != tt.wantErr {
+			if err := m.Delete(context.TODO(), tt.args.path); (err != nil) != tt.wantErr {
 				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -714,7 +715,7 @@ func TestMemory_GetLastModified(t *testing.T) {
 			m := &Memory{
 				tree: tt.fields.tree,
 			}
-			got, err := m.GetLastModified(tt.args.path)
+			got, err := m.GetLastModified(context.TODO(), tt.args.path)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetLastModified() error = %v, wantErr %v", err, tt.wantErr)
 				return

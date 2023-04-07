@@ -16,7 +16,7 @@ const getAllSuffix = "/__all.json"
 func getAllHandler(c *gin.Context, be backend.Backend) {
 	urlPath := c.Request.URL.Path
 	path := urlPath[0 : len(urlPath)-len(getAllSuffix)]
-	list, err := be.List(path)
+	list, err := be.List(c, path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)
@@ -28,7 +28,7 @@ func getAllHandler(c *gin.Context, be backend.Backend) {
 	ch := make(chan interface{}, len(list))
 	for i := range list {
 		go func(k int) {
-			obj, err := helper.FromJSON(be.Get(filepath.Join(path, list[k])))
+			obj, err := helper.FromJSON(be.Get(c, filepath.Join(path, list[k])))
 			if err != nil {
 				log.Panicf("Error: %+v", err)
 			}

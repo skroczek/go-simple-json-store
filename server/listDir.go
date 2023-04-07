@@ -14,7 +14,7 @@ const listDirSuffix = "__dir.json"
 
 func getListDirHandler(c *gin.Context, be backend.FileBackend) {
 	urlPath := c.Request.URL.Path
-	data, err := be.ListTypes(urlPath[0:len(urlPath)-len(listDirSuffix)], fs.ModeDir)
+	data, err := be.ListTypes(c, urlPath[0:len(urlPath)-len(listDirSuffix)], fs.ModeDir)
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)

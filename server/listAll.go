@@ -14,7 +14,7 @@ const listAllSuffix = "__list.json"
 
 func getListHandler(c *gin.Context, be backend.Backend) {
 	urlPath := c.Request.URL.Path
-	data, err := be.List(urlPath[0 : len(urlPath)-len(listAllSuffix)])
+	data, err := be.List(c, urlPath[0:len(urlPath)-len(listAllSuffix)])
 	if err != nil {
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)

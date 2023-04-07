@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	goos "os"
@@ -48,7 +49,7 @@ type FilesystemBackend struct {
 	options filesystemOption
 }
 
-func (f FilesystemBackend) Exists(path string) (bool, error) {
+func (f FilesystemBackend) Exists(ctx context.Context, path string) (bool, error) {
 	stat, err := goos.Stat(filepath.Join(f.Root, path))
 	if err != nil {
 		return false, err
@@ -56,11 +57,11 @@ func (f FilesystemBackend) Exists(path string) (bool, error) {
 	return !stat.IsDir(), nil
 }
 
-func (f FilesystemBackend) Get(path string) ([]byte, error) {
+func (f FilesystemBackend) Get(ctx context.Context, path string) ([]byte, error) {
 	return goos.ReadFile(filepath.Join(f.Root, path))
 }
 
-func (f FilesystemBackend) Write(path string, data []byte) error {
+func (f FilesystemBackend) Write(ctx context.Context, path string, data []byte) error {
 	fullPath := filepath.Join(f.Root, path)
 	if f.options&createDirs != 0 {
 		dir := filepath.Dir(fullPath)
@@ -71,7 +72,7 @@ func (f FilesystemBackend) Write(path string, data []byte) error {
 	return goos.WriteFile(fullPath, data, 0644)
 }
 
-func (f FilesystemBackend) Delete(path string) error {
+func (f FilesystemBackend) Delete(ctx context.Context, path string) error {
 	if path == "" {
 		return fmt.Errorf("cannot delete root")
 	}
@@ -98,12 +99,12 @@ func (f FilesystemBackend) Delete(path string) error {
 	}
 	parentPath := filepath.Dir(fullPath)
 	if parentPath != f.Root {
-		return f.Delete(parentPath[len(f.Root)+1:])
+		return f.Delete(ctx, parentPath[len(f.Root)+1:])
 	}
 	return nil
 }
 
-func (f FilesystemBackend) List(path string) ([]string, error) {
+func (f FilesystemBackend) List(ctx context.Context, path string) ([]string, error) {
 	path = filepath.Join(f.Root, path)
 	var fileNames []string
 	files, err := goos.ReadDir(path)
@@ -121,7 +122,7 @@ func (f FilesystemBackend) List(path string) ([]string, error) {
 	return fileNames, nil
 }
 
-func (f FilesystemBackend) ListTypes(path string, mode fs.FileMode) ([]string, error) {
+func (f FilesystemBackend) ListTypes(ctx context.Context, path string, mode fs.FileMode) ([]string, error) {
 	path = filepath.Join(f.Root, path)
 	list := make([]string, 0)
 	files, err := goos.ReadDir(path)
@@ -137,7 +138,7 @@ func (f FilesystemBackend) ListTypes(path string, mode fs.FileMode) ([]string, e
 	return list, nil
 }
 
-func (f FilesystemBackend) GetLastModified(path string) (time.Time, error) {
+func (f FilesystemBackend) GetLastModified(ctx context.Context, path string) (time.Time, error) {
 	info, err := goos.Stat(filepath.Join(f.Root, path))
 	return info.ModTime(), err
 }

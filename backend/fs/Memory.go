@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"context"
 	"github.com/skroczek/acme-restful/errors"
 	"os"
 	"strings"
@@ -44,7 +45,7 @@ func (m *Memory) getBlob(path string) (*Blob, error) {
 	return nil, os.ErrNotExist
 }
 
-func (m *Memory) Exists(path string) (bool, error) {
+func (m *Memory) Exists(ctx context.Context, path string) (bool, error) {
 	path = strings.Trim(path, "/")
 	if len(path) < 6 {
 		return false, errors.ErrorInvalidPath
@@ -59,7 +60,7 @@ func (m *Memory) Exists(path string) (bool, error) {
 	return blob != nil, nil
 }
 
-func (m *Memory) Get(path string) ([]byte, error) {
+func (m *Memory) Get(ctx context.Context, path string) ([]byte, error) {
 	blob, err := m.getBlob(path)
 	if err != nil {
 		return nil, err
@@ -67,7 +68,7 @@ func (m *Memory) Get(path string) ([]byte, error) {
 	return blob.Content, nil
 }
 
-func (m *Memory) Write(path string, data []byte) error {
+func (m *Memory) Write(ctx context.Context, path string, data []byte) error {
 	path = strings.Trim(path, "/")
 	if len(path) < 6 {
 		return errors.ErrorInvalidPath
@@ -90,7 +91,7 @@ func (m *Memory) Write(path string, data []byte) error {
 	return nil
 }
 
-func (m *Memory) Delete(path string) error {
+func (m *Memory) Delete(ctx context.Context, path string) error {
 	path = strings.Trim(path, "/")
 	parts := strings.Split(path, "/")
 	tree := m.tree
@@ -107,7 +108,7 @@ func (m *Memory) Delete(path string) error {
 	return os.ErrNotExist
 }
 
-func (m *Memory) List(path string) ([]string, error) {
+func (m *Memory) List(ctx context.Context, path string) ([]string, error) {
 	path = strings.Trim(path, "/")
 	tree := m.tree
 	if path != "" {
@@ -131,7 +132,7 @@ func (m *Memory) List(path string) ([]string, error) {
 	return result, nil
 }
 
-func (m *Memory) GetLastModified(path string) (time.Time, error) {
+func (m *Memory) GetLastModified(ctx context.Context, path string) (time.Time, error) {
 	blob, err := m.getBlob(path)
 	if err != nil {
 		return time.Time{}, err
