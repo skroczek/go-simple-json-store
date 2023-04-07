@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/skroczek/acme-restful/backend"
 	"github.com/skroczek/acme-restful/router"
+	"net/http"
 )
 
 type Server struct {
@@ -26,20 +27,34 @@ func NewServer(opts ...Options) *Server {
 func (s *Server) prepareEngine() *gin.Engine {
 	r := gin.New()
 
-	// ToDo: make logger an recovery middleware configurable
+	// ToDo: make logger and recovery middleware configurable
 	r.Use(gin.Logger(), gin.Recovery())
 
 	for _, option := range s.routerOptions {
 		option(r)
 	}
 
-	r.GET("/*path", s.GetHandler)
-	r.POST("/*path", s.PostHandler)
-	r.PUT("/*path", s.PutHandler)
-	r.DELETE("/*path", s.DeleteHandler)
-	r.PATCH("/*path", s.PatchHandler)
-	r.HEAD("/*path", s.HeadHandler)
-	r.OPTIONS("/*path", s.OptionsHandler)
+	r.Use(func(context *gin.Context) {
+		switch context.Request.Method {
+		case "GET":
+			s.GetHandler(context)
+		case "POST":
+			s.PostHandler(context)
+		case "PUT":
+			s.PutHandler(context)
+		case "DELETE":
+			s.DeleteHandler(context)
+		case "PATCH":
+			s.PatchHandler(context)
+		case "HEAD":
+			s.HeadHandler(context)
+		case "OPTIONS":
+			s.OptionsHandler(context)
+		default:
+			context.AbortWithStatus(http.StatusMethodNotAllowed)
+		}
+	})
+
 	return r
 }
 

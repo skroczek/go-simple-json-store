@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/skroczek/acme-restful/backend"
 	"github.com/skroczek/acme-restful/helper"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -19,10 +18,10 @@ func getAllHandler(c *gin.Context, be backend.Backend) {
 	list, err := be.List(c, path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.AbortWithStatus(http.StatusNotFound)
+			_ = c.AbortWithError(http.StatusNotFound, err)
 			return
 		}
-		log.Panicf("Error: %+v", err)
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
 	}
 	data := make([]interface{}, len(list))
 	ch := make(chan interface{}, len(list))
@@ -30,7 +29,8 @@ func getAllHandler(c *gin.Context, be backend.Backend) {
 		go func(k int) {
 			obj, err := helper.FromJSON(be.Get(c, filepath.Join(path, list[k])))
 			if err != nil {
-				log.Panicf("Error: %+v", err)
+				_ = c.AbortWithError(http.StatusInternalServerError, err)
+				return
 			}
 			ch <- obj
 		}(i)
@@ -45,7 +45,11 @@ func WithGetAll() Options {
 	return func(s *Server) {
 		s.AddRouterOption(func(r *gin.Engine) {
 			r.Use(func(c *gin.Context) {
-				if c.Request.Method == http.MethodGet && strings.HasSuffix(c.Request.URL.Path, getAllSuffix) {
+				if strings.HasSuffix(c.Request.URL.Path, getAllSuffix) {
+					if c.Request.Method != http.MethodGet {
+						_ = c.AbortWithError(http.StatusMethodNotAllowed, errMethodNotAllowed)
+						return
+					}
 					getAllHandler(c, s.Backend)
 					return
 				}
