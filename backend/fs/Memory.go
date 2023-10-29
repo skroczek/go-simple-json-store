@@ -69,7 +69,7 @@ func (m *Memory) Get(ctx context.Context, path string) ([]byte, error) {
 }
 
 func (m *Memory) Write(ctx context.Context, path string, data []byte) error {
-	path = strings.Trim(path, "/")
+	path = strings.TrimLeft(path, "/")
 	if len(path) < 6 {
 		return errors.ErrorInvalidPath
 	}
